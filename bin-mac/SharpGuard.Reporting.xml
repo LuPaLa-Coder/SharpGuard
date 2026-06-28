@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpGuard.Reporting</name>
+    </assembly>
+    <members>
+        <member name="T:SharpGuard.Reporting.IReportWriter">
+            <summary>
+            Strategy interface for writing analysis reports in various formats.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.IReportWriter.Format">
+            <summary>The output format this writer produces.</summary>
+        </member>
+        <member name="M:SharpGuard.Reporting.IReportWriter.WriteAsync(SharpGuard.Reporting.ReportContext,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <summary>
+            Writes the analysis report to the given <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Reporting.ReportContext">
+            <summary>
+            Data bag containing all analysis results to be rendered by a report writer.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.ProjectPath">
+            <summary>Path to the project or solution that was analyzed.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.AnalysisStartTime">
+            <summary>Timestamp when the analysis started.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.Duration">
+            <summary>Total duration of the analysis.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.SastFindings">
+            <summary>All SAST findings discovered.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.ScaResults">
+            <summary>All SCA vulnerability results.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.SeverityThreshold">
+            <summary>Minimum severity threshold applied during analysis.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.IsOffline">
+            <summary>Whether the analysis ran in offline mode.</summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.ReportContext.ToolVersion">
+            <summary>Tool version string.</summary>
+        </member>
+        <member name="T:SharpGuard.Reporting.ReportFormat">
+            <summary>
+            Output formats supported by the reporting engine.
+            </summary>
+        </member>
+        <member name="F:SharpGuard.Reporting.ReportFormat.Console">
+            <summary>Human-readable colored console output.</summary>
+        </member>
+        <member name="F:SharpGuard.Reporting.ReportFormat.Json">
+            <summary>Machine-readable JSON.</summary>
+        </member>
+        <member name="F:SharpGuard.Reporting.ReportFormat.Sarif">
+            <summary>SARIF v2.1.0 for GitHub Code Scanning / Azure DevOps.</summary>
+        </member>
+        <member name="T:SharpGuard.Reporting.ReportWriterFactory">
+            <summary>
+            Factory that selects the appropriate <see cref="T:SharpGuard.Reporting.IReportWriter"/> for a given format.
+            </summary>
+        </member>
+        <member name="M:SharpGuard.Reporting.ReportWriterFactory.#ctor(System.Collections.Generic.IEnumerable{SharpGuard.Reporting.IReportWriter})">
+            <summary>
+            Creates the factory with all available report writers.
+            </summary>
+        </member>
+        <member name="M:SharpGuard.Reporting.ReportWriterFactory.GetWriter(SharpGuard.Reporting.ReportFormat)">
+            <summary>
+            Returns the report writer for the specified format.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown if no writer is registered for the format.</exception>
+        </member>
+        <member name="T:SharpGuard.Reporting.Writers.ConsoleReportWriter">
+            <summary>
+            Writes analysis results to the console with color-coded severity levels.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.Writers.ConsoleReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpGuard.Reporting.Writers.ConsoleReportWriter.WriteAsync(SharpGuard.Reporting.ReportContext,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SharpGuard.Reporting.Writers.JsonReportWriter">
+            <summary>
+            Writes analysis results as machine-readable JSON.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.Writers.JsonReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpGuard.Reporting.Writers.JsonReportWriter.WriteAsync(SharpGuard.Reporting.ReportContext,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SharpGuard.Reporting.Writers.SarifReportWriter">
+            <summary>
+            Writes analysis results in SARIF v2.1.0 format for GitHub Code Scanning and Azure DevOps.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Reporting.Writers.SarifReportWriter.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpGuard.Reporting.Writers.SarifReportWriter.WriteAsync(SharpGuard.Reporting.ReportContext,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

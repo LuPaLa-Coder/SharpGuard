@@ -1,0 +1,345 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpGuard.Core</name>
+    </assembly>
+    <members>
+        <member name="T:SharpGuard.Core.CweInfo">
+            <summary>
+            Maps a finding to its CWE (Common Weakness Enumeration) entry.
+            </summary>
+            <param name="Id">CWE identifier, e.g. "89".</param>
+            <param name="Name">Short name, e.g. "SQL Injection".</param>
+        </member>
+        <member name="M:SharpGuard.Core.CweInfo.#ctor(System.String,System.String)">
+            <summary>
+            Maps a finding to its CWE (Common Weakness Enumeration) entry.
+            </summary>
+            <param name="Id">CWE identifier, e.g. "89".</param>
+            <param name="Name">Short name, e.g. "SQL Injection".</param>
+        </member>
+        <member name="P:SharpGuard.Core.CweInfo.Id">
+            <summary>CWE identifier, e.g. "89".</summary>
+        </member>
+        <member name="P:SharpGuard.Core.CweInfo.Name">
+            <summary>Short name, e.g. "SQL Injection".</summary>
+        </member>
+        <member name="P:SharpGuard.Core.CweInfo.Url">
+            <summary>Full URL to the CWE definition on mitre.org.</summary>
+        </member>
+        <member name="T:SharpGuard.Core.Finding">
+            <summary>
+            Represents a single security finding produced by a SAST rule analysis.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.RuleId">
+            <summary>The rule identifier that produced this finding (e.g. "SG0001").</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.DiagnosticId">
+            <summary>The stable diagnostic ID (e.g. "SG0001").</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.Severity">
+            <summary>Severity assigned by the rule (may be overridden by configuration).</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.FilePath">
+            <summary>Absolute or relative path to the source file.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.LineNumber">
+            <summary>1-based line number where the issue starts.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.ColumnNumber">
+            <summary>1-based column number where the issue starts.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.Message">
+            <summary>Human-readable description of the finding and remediation advice.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.Cwe">
+            <summary>CWE classification for this finding.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.Finding.CodeSnippet">
+            <summary>Optional snippet of the offending code (truncated if very long).</summary>
+        </member>
+        <member name="T:SharpGuard.Core.ISecurityRule">
+            <summary>
+            Defines the contract for a SAST security rule. Each rule detects one specific
+            vulnerability pattern and is consumed by both the CLI and Roslyn Analyzer.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.Id">
+            <summary>Unique rule identifier, e.g. "SG0001".</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.DiagnosticId">
+            <summary>Stable diagnostic ID used in Roslyn analyzers, e.g. "SG0001".</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.Title">
+            <summary>Short human-readable title, e.g. "SQL Injection".</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.Description">
+            <summary>Detailed description of the vulnerability being detected.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.RemediationMessage">
+            <summary>Guidance on how to fix the vulnerability.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.HelpLinkUri">
+            <summary>Link to documentation for this rule.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.DefaultSeverity">
+            <summary>Default severity used when no user override is present.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.Cwe">
+            <summary>CWE classification for this vulnerability.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.Category">
+            <summary>Broad vulnerability category for grouping and filtering.</summary>
+        </member>
+        <member name="P:SharpGuard.Core.ISecurityRule.TriggerSyntaxKind">
+            <summary>The Roslyn <see cref="T:Microsoft.CodeAnalysis.CSharp.SyntaxKind"/> that triggers analysis for this rule.</summary>
+        </member>
+        <member name="M:SharpGuard.Core.ISecurityRule.Analyze(Microsoft.CodeAnalysis.SemanticModel,Microsoft.CodeAnalysis.SyntaxNode,System.Threading.CancellationToken)">
+            <summary>
+            Analyzes a single syntax node within its semantic context.
+            Returns a <see cref="T:SharpGuard.Core.Finding"/> if a vulnerability is detected, or <c>null</c> if the node is safe.
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.RuleFactory">
+            <summary>
+            Central registry for all SAST rules. Both the CLI and Analyzer projects
+            use this factory to obtain the rule set — avoiding duplication of rule registration.
+            </summary>
+        </member>
+        <member name="M:SharpGuard.Core.RuleFactory.CreateAll">
+            <summary>Returns all registered SAST rules.</summary>
+        </member>
+        <member name="M:SharpGuard.Core.RuleFactory.GetRule(System.String)">
+            <summary>Looks up a rule by its <see cref="P:SharpGuard.Core.ISecurityRule.Id"/>.</summary>
+            <returns>The rule, or <c>null</c> if not found.</returns>
+        </member>
+        <member name="M:SharpGuard.Core.RuleFactory.GetRuleByDiagnosticId(System.String)">
+            <summary>Looks up a rule by its <see cref="P:SharpGuard.Core.ISecurityRule.DiagnosticId"/>.</summary>
+            <returns>The rule, or <c>null</c> if not found.</returns>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.CommandInjectionRule">
+            <summary>
+            Detects command injection vulnerabilities where <c>Process.Start</c> is called
+            with non-constant arguments that could allow arbitrary command execution (CWE-78).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.CrossSiteScriptingRule">
+            <summary>
+            Detects potential Cross-Site Scripting (XSS) vulnerabilities in ASP.NET applications,
+            such as <c>Html.Raw()</c> or <c>HttpResponse.Write</c> with non-constant input (CWE-79).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.HardcodedSecretsRule">
+            <summary>
+            Detects hardcoded secrets such as passwords, API keys, tokens, and connection strings
+            in source code (CWE-798).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.InformationExposureRule">
+            <summary>
+            Detects exception handling that exposes internal error details
+            (exception message, stack trace) to end users (CWE-209).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.InsecureCookieRule">
+            <summary>
+            Detects cookies created without Secure and/or HttpOnly flags,
+            which could expose authentication tokens to interception or XSS (CWE-614).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.InsecureDeserializationRule">
+            <summary>
+            Detects use of insecure deserializers such as <c>BinaryFormatter</c>,
+            <c>NetDataContractSerializer</c>, and similar types (CWE-502).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.InsecureRandomRule">
+            <summary>
+            Detects use of <c>System.Random</c> for security-sensitive purposes
+            where a cryptographically secure random number generator is required (CWE-338).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.LdapInjectionRule">
+            <summary>
+            Detects LDAP injection vulnerabilities where <c>DirectorySearcher</c> or
+            <c>DirectoryEntry</c> accept non-constant LDAP filter strings (CWE-90).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.MissingAuthorizationRule">
+            <summary>
+            Detects ASP.NET controller actions or minimal API endpoints that lack
+            authorization attributes, potentially exposing functionality anonymously (CWE-306).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.OpenRedirectRule">
+            <summary>
+            Detects open redirect vulnerabilities where HTTP redirects use
+            non-constant URLs that could be controlled by attackers (CWE-601).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.PathTraversalRule">
+            <summary>
+            Detects path traversal vulnerabilities where file system APIs are called with
+            non-constant path arguments that may allow directory escape (CWE-22).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.SensitiveDataLoggingRule">
+            <summary>
+            Detects logging of potentially sensitive data, such as variables containing
+            passwords, tokens, or user data being written to log output (CWE-532).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.SqlInjectionRule">
+            <summary>
+            Detects SQL injection vulnerabilities where SQL command text is built
+            via string concatenation or interpolation with non-constant operands (CWE-89).
+            </summary>
+        </member>
+        <member name="M:SharpGuard.Core.Rules.SqlInjectionRule.ResolveCommandText(Microsoft.CodeAnalysis.CSharp.Syntax.InvocationExpressionSyntax,Microsoft.CodeAnalysis.IMethodSymbol,Microsoft.CodeAnalysis.SemanticModel,System.Threading.CancellationToken)">
+            <summary>
+            Attempts to resolve the expression that produces the command text.
+            For SqlCommand, this could be the first constructor argument or a property setter.
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.SsrfRule">
+            <summary>
+            Detects Server-Side Request Forgery (SSRF) vulnerabilities where HTTP clients
+            are used with user-controlled URLs (CWE-918).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.TimeOfCheckTimeOfUseRule">
+            <summary>
+            Detects TOCTOU (Time-of-Check Time-of-Use) race conditions where a file
+            existence check is followed by a file operation without proper exception handling (CWE-367).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.TlsValidationRule">
+            <summary>
+            Detects disabled TLS/SSL certificate validation, typically through
+            <c>ServerCertificateValidationCallback</c> set to always return <c>true</c> (CWE-295).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.WeakCryptographyRule">
+            <summary>
+            Detects use of weak cryptographic algorithms such as MD5, SHA1, DES,
+            and ECB cipher mode (CWE-327).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.WeakRsaKeyRule">
+            <summary>
+            Detects RSA keys created with fewer than 2048 bits,
+            which are considered cryptographically weak (CWE-326).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.XPathInjectionRule">
+            <summary>
+            Detects XPath injection vulnerabilities where XPath queries are built
+            from non-constant expressions (CWE-643).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.Rules.XxeRule">
+            <summary>
+            Detects XML External Entity (XXE) vulnerabilities where XML parsers are configured
+            with DTD processing enabled or external entity resolution allowed (CWE-611).
+            </summary>
+        </member>
+        <member name="T:SharpGuard.Core.SecurityRuleBase">
+            <summary>
+            Abstract base class for all SAST security rules. Provides a common <see cref="M:SharpGuard.Core.SecurityRuleBase.Analyze(Microsoft.CodeAnalysis.SemanticModel,Microsoft.CodeAnalysis.SyntaxNode,System.Threading.CancellationToken)"/>
+            method contract and helper utilities for creating <see cref="T:SharpGuard.Core.Finding"/> instances.
+            </summary>
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.DiagnosticId">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.Title">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.Description">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.RemediationMessage">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.HelpLinkUri">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.DefaultSeverity">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.Cwe">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.Category">
+            <inheritdoc />
+        </member>
+        <member name="P:SharpGuard.Core.SecurityRuleBase.TriggerSyntaxKind">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpGuard.Core.SecurityRuleBase.Analyze(Microsoft.CodeAnalysis.SemanticModel,Microsoft.CodeAnalysis.SyntaxNode,System.Threading.CancellationToken)">
+            <summary>
+            Analyzes a single syntax node within its semantic context.
+            Returns a <see cref="T:SharpGuard.Core.Finding"/> if a vulnerability is detected, or <c>null</c> if the node is safe.
+            </summary>
+            <param name="semanticModel">Semantic model for type/member resolution.</param>
+            <param name="node">The syntax node matching <see cref="P:SharpGuard.Core.SecurityRuleBase.TriggerSyntaxKind"/>.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:SharpGuard.Core.SecurityRuleBase.CreateFinding(Microsoft.CodeAnalysis.SyntaxNode,System.String,System.String)">
+            <summary>
+            Helper to create a <see cref="T:SharpGuard.Core.Finding"/> from the current analysis context.
+            Automatically extracts file location from the node's syntax tree.
+            </summary>
+            <param name="node">The offending syntax node.</param>
+            <param name="message">Human-readable message (usually combines description + remediation).</param>
+            <param name="codeSnippet">Optional code snippet; if omitted, truncated node text is used.</param>
+        </member>
+        <member name="T:SharpGuard.Core.Severity">
+            <summary>
+            Severity levels for security findings. Ordered from most to least critical.
+            </summary>
+        </member>
+        <member name="F:SharpGuard.Core.Severity.Critical">
+            <summary>Immediate threat, must be fixed. Always error-level in analyzers.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.Severity.High">
+            <summary>Serious vulnerability, should be treated as error in CI.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.Severity.Medium">
+            <summary>Moderate risk, default warning.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.Severity.Low">
+            <summary>Minor issue or best-practice violation, default info.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.Severity.Info">
+            <summary>Informational only, default hidden in analyzers.</summary>
+        </member>
+        <member name="T:SharpGuard.Core.VulnerabilityCategory">
+            <summary>
+            Broad categories for grouping security findings.
+            </summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.Injection">
+            <summary>SQL, command, LDAP, XPath injection flaws.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.Cryptography">
+            <summary>Weak algorithms, insecure keys, predictable RNG.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.InformationDisclosure">
+            <summary>Secrets in code, verbose error messages, data leaks.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.Deserialization">
+            <summary>Unsafe deserialization of untrusted data.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.Configuration">
+            <summary>TLS/SSL misconfiguration, disabled certificate validation.</summary>
+        </member>
+        <member name="F:SharpGuard.Core.VulnerabilityCategory.Logging">
+            <summary>Sensitive data written to logs or traces.</summary>
+        </member>
+    </members>
+</doc>
